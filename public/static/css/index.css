@@ -1,0 +1,30 @@
+svg {
+    overflow: hidden;
+}
+
+#map-container {
+    border: 1px solid;
+    padding: 20px;
+}
+
+#selected-municipalities-container {
+    border: 1px solid;
+    font-size: 15px;
+    padding: 10px;
+    margin: 20px;
+}
+
+#charts-container {
+    padding: 20px;
+    margin: 20px;
+    border: 1px solid lightgreen;
+}
+
+.municipality.highlighted {
+      fill: lightgreen !important;
+      stroke-width: 2 !important;
+}
+
+.municipality:hover {
+    cursor: pointer;
+}
