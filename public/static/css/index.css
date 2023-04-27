@@ -7,16 +7,20 @@ svg {
     padding: 20px;
 }
 
-#hover-info-container {
-    margin: 5px;
-    min-height: 42px;
-    border: 2px solid #ccc;
-}
-
 #charts-container {
     padding: 20px;
     margin: 20px;
     border: 1px solid lightgreen;
+}
+
+.hover-tooltip {
+    position: absolute;
+    z-index: 10;
+    padding: 10px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 4px;
+    color: #fff;
+    visibility: hidden;
 }
 
 .municipality.highlighted {

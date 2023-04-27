@@ -16,7 +16,7 @@ const barChartYScale = d3.scaleBand()
 
 const barChartSvg = initBarCharts();
 
-const tooltip = initBarChartToolTip();
+const barChartTooltip = initBarChartToolTip();
 
 initBarChartXAxis();
 initBarChartYAxis();
@@ -51,14 +51,8 @@ function initBarChartYAxis() {
 function initBarChartToolTip() {
     return d3.select('body')
         .append('div')
-        .attr('class', 'bar-chart-tooltip')
-        .style('position', 'absolute')
-        .style('z-index', '10')
-        .style('visibility', 'visible')
-        .style('padding', '10px')
-        .style('background', 'rgba(0,0,0,0.6)')
-        .style('border-radius', '4px')
-        .style('color', '#fff');
+        .attr('class', 'hover-tooltip')
+        .attr("id", "bar-chart-tooltip");
 }
 
 export function updateBarCharts() {
@@ -82,20 +76,19 @@ export function updateBarCharts() {
         .attr('height', barChartYScale.bandwidth())
         .style('fill', function(d) { return colorScale(d.value); })
         .on('mouseover', function (d, i) {
-                console.log(i)
-              tooltip
+              barChartTooltip
                 .html(
                   '<div>' + i.value + '</div>'
                 )
                 .style('visibility', 'visible');
           })
         .on('mousemove', function(event) {
-              tooltip
+              barChartTooltip
                 .style('top', (event.pageY - 15) + 'px')
                 .style('left', (event.pageX + 15) + 'px');
           })
           .on('mouseout', function () {
-              tooltip.html('').style('visibility', 'hidden');
+              barChartTooltip.html('').style('visibility', 'hidden');
           })
         .transition()
         .duration(500)

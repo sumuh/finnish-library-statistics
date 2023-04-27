@@ -36,6 +36,10 @@ const municipalityCodeToNameMap = initMunicipalityCodeToNameMap();
 
 export const colorScale = createColorScale();
 
+const municipalityNameTooltip = createMunicipalityNameTooltip();
+
+let mouseIsDown = false;
+
 function initmunicipalityCodeToDataMap() {
     const municipalityCodeToDataMap = new Map();
     statsCsv.forEach(function(d) {
@@ -59,8 +63,6 @@ async function initMap() {
     const standardParallels = [63, 66];
     const projection = createProjection(standardParallels);
 
-    const onHoverInfo = createOnHoverInfo();
-
     const svg = d3.select("#map-and-legend-container")
       .append("svg")
       .attr("height", chartHeight)
@@ -68,10 +70,10 @@ async function initMap() {
 
     const g = svg.append("g");
 
-    drawPaths(g, projection, colorScale, onHoverInfo);
+    drawPaths(g, projection, colorScale, municipalityNameTooltip);
     handleZoom(g, svg);
     createLegend(svg, colorScale);
-    initPanningListener(svg);
+    initEmptySelectionsButton();
     svg.on("dblclick.zoom", null); // Disable zooming on double click
 }
 
@@ -100,15 +102,11 @@ function createLegend(svg, colorScale) {
         .style("font-size", "12px");
 }
 
-function createOnHoverInfo() {
-    return d3.select("#hover-info-container")
+function createMunicipalityNameTooltip() {
+    return d3.select("body")
       .append("div")
-      .attr("class", "hover-info")
-      .style("color", "black")
-      .style("pointer-events", "none")
-      .style("background-color", "#fff")
-      .style("padding", "4px")
-      .style("font-size", "20px");
+      .attr("class", "hover-tooltip")
+      .attr("id", "municipality-name-tooltip");
 }
 
 function handleZoom(g, svg) {
@@ -136,18 +134,14 @@ function createProjection(standardParallels) {
       .fitSize([chartWidth, chartHeight], mapObj);
 }
 
-function initPanningListener(svg) {
-    // Not working (why)?
-    svg.on('mousedown', function() {
-       cursor: "-webkit-grabbing";
-    });
-
-    svg.on('mouseup', function() {
-      cursor: "default";
-    });
+function initEmptySelectionsButton() {
+    d3.select("#clear-selections-button").on("click", function(){
+        console.log("click btn")
+        clearSelections();
+    })
 }
 
-function drawPaths(g, projection, colorScale, onHoverInfo) {
+function drawPaths(g, projection, colorScale) {
     const path = d3.geoPath()
       .projection(projection);
 
@@ -170,8 +164,17 @@ function drawPaths(g, projection, colorScale, onHoverInfo) {
             
           })
       .on('mouseover', function(event, d) {
-        onHoverInfo
-          .html(d.properties.name);
+        municipalityNameTooltip
+          .html(d.properties.name)
+          .style('visibility', 'visible');
+      })
+      .on('mousemove', function(event) {
+          municipalityNameTooltip
+            .style('top', (event.clientY - 15) + 'px')
+            .style('left', (event.clientX + 15) + 'px');
+      })
+      .on('mouseout', function () {
+          municipalityNameTooltip.html('').style('visibility', 'hidden');
       })
       .on('click', onMunicipalityClick)
       .text(function(d) { return d.properties.name; });
@@ -179,20 +182,16 @@ function drawPaths(g, projection, colorScale, onHoverInfo) {
 
 function onMunicipalityClick(event, d) {
     const municipalityCode = d.properties.code;
-    console.log("clicked " + municipalityCode)
     const alreadySelected = selectedMunicipalities.filter(municipality => municipality.code == municipalityCode).length > 0;
-    console.log("already Selected " + alreadySelected)
     if(alreadySelected) {
         removeSelectedMunicipality(event, d);
     } else {
         addSelectedMunicipality(event, d);
     }
     updateBarCharts();
-    //event.stopPropagation();
 }
 
 function addSelectedMunicipality(event, d) {
-    console.log("addSelectedMunicipality " + d.properties.code)
     const municipalityCode = d.properties.code;
     const municipalityName = d.properties.name;
 
@@ -203,8 +202,16 @@ function addSelectedMunicipality(event, d) {
     clickedPath.classed('highlighted', true);
 }
 
+function clearSelections() {
+    selectedMunicipalities = [];
+    d3.select("#map-and-legend-container")
+      .select("svg")
+      .selectAll(".municipality")
+      .classed("highlighted", false);
+    updateBarCharts();
+}
+
 function removeSelectedMunicipality(event, d) {
-    console.log("removeSelectedMunicipality " + d.properties.code)
     const municipalityCode = d.properties.code;
 
     removeSelectedMunicipalityByCode(municipalityCode);
@@ -215,7 +222,6 @@ function removeSelectedMunicipality(event, d) {
 
 function removeSelectedMunicipalityByCode(municipalityCode) {
     let i = 0;
-    console.log("municipalityCode " + municipalityCode);
     const newSelectedMunicipalities = selectedMunicipalities;
     while (i < newSelectedMunicipalities.length) {
         if (newSelectedMunicipalities[i].code === municipalityCode) {
