@@ -7,11 +7,10 @@ svg {
     padding: 20px;
 }
 
-#selected-municipalities-container {
-    border: 1px solid;
-    font-size: 15px;
-    padding: 10px;
-    margin: 20px;
+#hover-info-container {
+    margin: 5px;
+    min-height: 42px;
+    border: 2px solid #ccc;
 }
 
 #charts-container {

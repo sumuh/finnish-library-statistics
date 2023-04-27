@@ -1,3 +1,5 @@
+import { updateBarCharts } from './bar-charts.js';
+
 async function getMap() {
     try {
         const response = await axios.get('http://localhost:3000/resources/finland-map-latest.json');
@@ -23,9 +25,7 @@ async function getLibraryStatistics() {
 const chartWidth = 800;
 const chartHeight = 800;
 
-const barChartMargin = { top: 20, right: 20, bottom: 20, left: 20 };
-const barChartWidth = 250;
-const barChartHeight = 200;
+export let selectedMunicipalities = [];
 
 const mapObj = await getMap();
 const libraryStats = await getLibraryStatistics();
@@ -33,6 +33,8 @@ const statsCsv = d3.csvParse(libraryStats)
 
 const municipalityCodeToDataMap = initmunicipalityCodeToDataMap();
 const municipalityCodeToNameMap = initMunicipalityCodeToNameMap();
+
+export const colorScale = createColorScale();
 
 function initmunicipalityCodeToDataMap() {
     const municipalityCodeToDataMap = new Map();
@@ -50,19 +52,16 @@ function initMunicipalityCodeToNameMap() {
     return municipalityCodeToNameMap;
 }
 
-const selectedMunicipalities = new Set();
-
 // End defining global variables
 
 async function initMap() {
-    const colorScale = createColorScale();
 
     const standardParallels = [63, 66];
     const projection = createProjection(standardParallels);
 
     const onHoverInfo = createOnHoverInfo();
 
-    const svg = d3.select("#map-container")
+    const svg = d3.select("#map-and-legend-container")
       .append("svg")
       .attr("height", chartHeight)
       .attr("width", chartWidth)
@@ -73,50 +72,7 @@ async function initMap() {
     handleZoom(g, svg);
     createLegend(svg, colorScale);
     initPanningListener(svg);
-}
-
-function initBarCharts() {
-    d3.select('#charts-container')
-      .append('svg')
-      .attr('width', barChartWidth + barChartMargin.left + barChartMargin.right)
-      .attr('height', barChartHeight + barChartMargin.top + barChartMargin.bottom)
-      .append('g')
-      .attr('transform', 'translate(' + barChartMargin.left + ',' + barChartMargin.top + ')');
-}
-
-function updateBarCharts(selectedMunicipalities) {
-    var barChartSvg = d3.select('#charts-container').select("svg");
-
-    barChartSvg.selectAll('.bar').remove();
-    barChartSvg.selectAll('.label').remove();
-
-    var bars = barChartSvg.selectAll('.bar')
-        .data(selectedMunicipalities, function(d) { return d; })
-
-    bars
-        .enter()
-        .append('rect')
-        .attr('class', 'bar')
-        .attr('x', 80)
-        .attr('y', function(d, i) { return i * 20; })
-        .attr('width', function(d) { return municipalityCodeToDataMap.get(d) * 10 })
-        .attr('height', 15)
-        .style('fill', 'steelblue');
-
-    bars.exit().remove();
-
-    var labels = barChartSvg.selectAll('.label')
-        .data(selectedMunicipalities, function(d) { return d; });
-
-    labels.enter()
-        .append('text')
-        .attr('class', 'label')
-        .attr('x', 0)
-        .attr('y', function(d, i) { return i * 20 + 12; })
-        //.style('text-anchor', 'end')
-        .text(function(d) { return municipalityCodeToNameMap.get(d); });
-
-    labels.exit().remove();
+    svg.on("dblclick.zoom", null); // Disable zooming on double click
 }
 
 function createLegend(svg, colorScale) {
@@ -152,8 +108,7 @@ function createOnHoverInfo() {
       .style("pointer-events", "none")
       .style("background-color", "#fff")
       .style("padding", "4px")
-      .style("font-size", "20px")
-      .style("border", "2px solid #ccc");
+      .style("font-size", "20px");
 }
 
 function handleZoom(g, svg) {
@@ -224,42 +179,53 @@ function drawPaths(g, projection, colorScale, onHoverInfo) {
 
 function onMunicipalityClick(event, d) {
     const municipalityCode = d.properties.code;
-    const alreadySelected = selectedMunicipalities.has(municipalityCode);
+    console.log("clicked " + municipalityCode)
+    const alreadySelected = selectedMunicipalities.filter(municipality => municipality.code == municipalityCode).length > 0;
+    console.log("already Selected " + alreadySelected)
     if(alreadySelected) {
         removeSelectedMunicipality(event, d);
     } else {
         addSelectedMunicipality(event, d);
     }
-    updateBarCharts(selectedMunicipalities);
+    updateBarCharts();
     //event.stopPropagation();
 }
 
 function addSelectedMunicipality(event, d) {
+    console.log("addSelectedMunicipality " + d.properties.code)
     const municipalityCode = d.properties.code;
     const municipalityName = d.properties.name;
 
-    const selectedMunicipalitiesDiv = document.getElementById('selected-municipalities-container');
-    const nameElement = document.createElement("p")
-    nameElement.id = municipalityCode + "SelectedText";
-    nameElement.innerHTML = municipalityName + " (" + municipalityCodeToDataMap.get(municipalityCode) + ")";
-    selectedMunicipalitiesDiv.appendChild(nameElement);
-    selectedMunicipalities.add(municipalityCode);
+    const dataValue = municipalityCodeToDataMap.get(municipalityCode);
+    selectedMunicipalities.push({'code': municipalityCode, 'name': municipalityName, 'value': dataValue});
 
     const clickedPath = d3.select(event.currentTarget);
     clickedPath.classed('highlighted', true);
 }
 
 function removeSelectedMunicipality(event, d) {
+    console.log("removeSelectedMunicipality " + d.properties.code)
     const municipalityCode = d.properties.code;
 
-    const selectedMunicipalitiesDiv = document.getElementById('selected-municipalities-container');
-    const nameElement = document.getElementById(municipalityCode + "SelectedText");
-    nameElement.remove();
-    selectedMunicipalities.delete(municipalityCode);
+    removeSelectedMunicipalityByCode(municipalityCode);
 
     const clickedPath = d3.select(event.currentTarget);
     clickedPath.classed('highlighted', false);
 }
 
+function removeSelectedMunicipalityByCode(municipalityCode) {
+    let i = 0;
+    console.log("municipalityCode " + municipalityCode);
+    const newSelectedMunicipalities = selectedMunicipalities;
+    while (i < newSelectedMunicipalities.length) {
+        if (newSelectedMunicipalities[i].code === municipalityCode) {
+          newSelectedMunicipalities.splice(i, 1);
+          break;
+        } else {
+          ++i;
+        }
+    }
+    selectedMunicipalities = newSelectedMunicipalities;
+}
+
 initMap();
-initBarCharts();
