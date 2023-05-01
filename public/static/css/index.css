@@ -13,6 +13,12 @@ svg {
     border: 1px solid lightgreen;
 }
 
+.range-form {
+  width: 400px;
+  margin: auto;
+  padding: 50px;
+}
+
 .hover-tooltip {
     position: absolute;
     z-index: 10;

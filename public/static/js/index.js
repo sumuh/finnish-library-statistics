@@ -22,6 +22,8 @@ async function getLibraryStatistics() {
 
 // Defining global variables
 
+const yearsArr = ["2016", "2017", "2018", "2019", "2020", "2021", "2022"];
+
 const chartWidth = 800;
 const chartHeight = 800;
 
@@ -38,13 +40,29 @@ export const colorScale = createColorScale();
 
 const municipalityNameTooltip = createMunicipalityNameTooltip();
 
-let mouseIsDown = false;
+const projection = createProjection();
+
+const mapSvg = initMapSvg();
+const mapG = mapSvg.append("g");
+
+d3.select("#header-year-label").html(getLatestYearWithData());
+
+drawPaths(getLatestYearWithData());
+handleZoom();
+createLegend();
+initEmptySelectionsButton();
+initYearSlider();
 
 function initmunicipalityCodeToDataMap() {
     const municipalityCodeToDataMap = new Map();
     statsCsv.forEach(function(d) {
-        municipalityCodeToDataMap.set(d.municipality_code, +d.loans_per_population_2022);
+        for(let year of yearsArr) {
+            let yearColumnKey = "loans_per_population_" + year;
+            let mapKey = getMunicipalityCodeToYearKey(d.municipality_code, year);
+            municipalityCodeToDataMap.set(mapKey, d[yearColumnKey]);
+        }
     });
+    console.log(municipalityCodeToDataMap)
     return municipalityCodeToDataMap;
 }
 
@@ -56,29 +74,21 @@ function initMunicipalityCodeToNameMap() {
     return municipalityCodeToNameMap;
 }
 
-// End defining global variables
-
-async function initMap() {
-
-    const standardParallels = [63, 66];
-    const projection = createProjection(standardParallels);
-
-    const svg = d3.select("#map-and-legend-container")
-      .append("svg")
-      .attr("height", chartHeight)
-      .attr("width", chartWidth)
-
-    const g = svg.append("g");
-
-    drawPaths(g, projection, colorScale, municipalityNameTooltip);
-    handleZoom(g, svg);
-    createLegend(svg, colorScale);
-    initEmptySelectionsButton();
-    svg.on("dblclick.zoom", null); // Disable zooming on double click
+function getMunicipalityCodeToYearKey(code, year) {
+    return code + "_" + year;
 }
 
-function createLegend(svg, colorScale) {
-    const legend = svg.append("g")
+// End defining global variables
+
+function initMapSvg() {
+    return d3.select("#map-and-legend-container")
+      .append("svg")
+      .attr("height", chartHeight)
+      .attr("width", chartWidth);
+}
+
+function createLegend() {
+    const legend = mapSvg.append("g")
         .attr("class", "legend")
         .attr("transform", "translate(20, 50)");
 
@@ -109,16 +119,16 @@ function createMunicipalityNameTooltip() {
       .attr("id", "municipality-name-tooltip");
 }
 
-function handleZoom(g, svg) {
+function handleZoom() {
     const zoom = d3.zoom()
         .scaleExtent([1, 8])
         .on("zoom", zoomed);
 
     function zoomed(event) {
-        g.attr("transform", event.transform);
+        mapG.attr("transform", event.transform);
     }
-
-    svg.call(zoom);
+    mapSvg.call(zoom);
+    mapSvg.on("dblclick.zoom", null); // Disable zooming on double click
 }
 
 function createColorScale() {
@@ -129,7 +139,8 @@ function createColorScale() {
         .domain(color_domain);
 }
 
-function createProjection(standardParallels) {
+function createProjection() {
+    const standardParallels = [63, 66];
     return d3.geoConicEqualArea()
       .parallels(standardParallels)
       .rotate([-27, 0])
@@ -138,16 +149,16 @@ function createProjection(standardParallels) {
 
 function initEmptySelectionsButton() {
     d3.select("#clear-selections-button").on("click", function(){
-        console.log("click btn")
         clearSelections();
     })
 }
 
-function drawPaths(g, projection, colorScale) {
+function drawPaths(year) {
+    console.log("drawpaths " + year)
     const path = d3.geoPath()
       .projection(projection);
 
-    g
+    mapG
       .selectAll("path")
       .data(mapObj.features)
       .enter()
@@ -157,7 +168,9 @@ function drawPaths(g, projection, colorScale) {
       .attr("stroke", "black")
       .style("fill", function(d) {
             var municipalityCode = d.properties.code;
-            var dataValue = municipalityCodeToDataMap.get(municipalityCode);
+            var mapKey = getMunicipalityCodeToYearKey(municipalityCode, year);
+            var dataValue = municipalityCodeToDataMap.get(mapKey);
+            console.log(dataValue)
             if(dataValue) {
                 return colorScale(dataValue);
             } else {
@@ -206,8 +219,7 @@ function addSelectedMunicipality(event, d) {
 
 function clearSelections() {
     selectedMunicipalities = [];
-    d3.select("#map-and-legend-container")
-      .select("svg")
+    mapSvg
       .selectAll(".municipality")
       .classed("highlighted", false);
     updateBarCharts();
@@ -236,4 +248,24 @@ function removeSelectedMunicipalityByCode(municipalityCode) {
     selectedMunicipalities = newSelectedMunicipalities;
 }
 
-initMap();
+function initYearSlider() {
+    const slider = d3.select("#year-slider");
+    const sliderLabel = d3.select("#year-slider-current-year-label");
+    const headerYearLabel = d3.select("#header-year-label");
+    sliderLabel.html(getLatestYearWithData());
+
+    slider.on("input", function() {
+      let year = this.value;
+      sliderLabel.text(year);
+      headerYearLabel.text(year);
+      transitionMap(year);
+    });
+}
+
+function getLatestYearWithData() {
+    return yearsArr[yearsArr.length - 1];
+}
+
+function transitionMap(year) {
+    drawPaths(year);
+}
