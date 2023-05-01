@@ -29,7 +29,7 @@ export let selectedMunicipalities = [];
 
 const mapObj = await getMap();
 const libraryStats = await getLibraryStatistics();
-const statsCsv = d3.csvParse(libraryStats)
+const statsCsv = d3.csvParse(libraryStats);
 
 const municipalityCodeToDataMap = initmunicipalityCodeToDataMap();
 const municipalityCodeToNameMap = initMunicipalityCodeToNameMap();
@@ -83,7 +83,7 @@ function createLegend(svg, colorScale) {
         .attr("transform", "translate(20, 50)");
 
     legend.selectAll("rect")
-        .data([30, 20, 10, 0])
+        .data([25, 20, 15, 10, 5])
         .enter()
         .append("rect")
         .attr("x", 0)
@@ -93,7 +93,7 @@ function createLegend(svg, colorScale) {
         .attr("fill", function(d) { return colorScale(d); });
 
     legend.selectAll("text")
-        .data([30, 20, 10, 0])
+        .data([25, 20, 15, 10, 5])
         .enter()
         .append("text")
         .attr("x", 30)
@@ -122,9 +122,11 @@ function handleZoom(g, svg) {
 }
 
 function createColorScale() {
-    return d3.scaleSequential()
-      .interpolator(d3.interpolateBlues)
-      .domain([0, d3.max(statsCsv, function(d) { return +d.loans_per_population_2022; })]);
+    const color_domain = [5, 10, 15, 20, 25];
+    const color_range = ['#f1eef6', '#d0d1e6', '#a6bddb', '#74a9cf', '#2b8cbe', '#045a8d'];
+    return d3.scaleThreshold()
+        .range(color_range)
+        .domain(color_domain);
 }
 
 function createProjection(standardParallels) {
