@@ -64,7 +64,6 @@ function initmunicipalityCodeToDataMap() {
             municipalityCodeToDataMap.set(mapKey, d[yearColumnKey]);
         }
     });
-    console.log(municipalityCodeToDataMap)
     return municipalityCodeToDataMap;
 }
 
@@ -95,7 +94,7 @@ function createLegend() {
         .attr("transform", "translate(20, 50)");
 
     legend.selectAll("rect")
-        .data([25, 20, 15, 10, 5])
+        .data([1000, 24.99, 19.99, 14.99, 9.99, 4.99])
         .enter()
         .append("rect")
         .attr("x", 0)
@@ -105,13 +104,38 @@ function createLegend() {
         .attr("fill", function(d) { return colorScale(d); });
 
     legend.selectAll("text")
-        .data([25, 20, 15, 10, 5])
+        .data([1000, 24.99, 19.99, 14.99, 9.99, 4.99])
         .enter()
         .append("text")
         .attr("x", 30)
         .attr("y", function(d, i) { return i * 20 + 15; })
-        .text(function(d) { return d; }) 
+        .text(function(d) { return getLegendText(d); }) 
         .style("font-size", "12px");
+}
+
+function getLegendText(d) {
+    let text = "";
+    switch(d) {
+        case 4.99:
+            text = "alle 5";
+            break;
+        case 9.99:
+            text = "5-10";
+            break;
+        case 14.99:
+            text = "10-15";
+            break;
+        case 19.99:
+            text = "15-20";
+            break;
+        case 24.99:
+            text = "20-25";
+            break;
+        case 1000:
+            text = "yli 25"
+            break;
+    }
+    return text;
 }
 
 function createMunicipalityNameTooltip() {
