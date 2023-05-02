@@ -58,7 +58,6 @@ function initBarChartToolTip() {
 // Redraw entire bar charts when adding or removing selected municipalities
 export function updateBarCharts() {
     barChartSvg.selectAll('.bar').remove();
-    barChartSvg.selectAll('.label').remove();
 
     barChartYScale.domain(selectedMunicipalities.map(function(d) { return d.name; }));
     barChartSvg.select(".y.axis")
@@ -94,12 +93,20 @@ export function updateBarCharts() {
         .transition()
         .duration(600)
         .attr('width', function(d) { return barChartXScale(d.yearData[currentYear]); })
+}
 
-    bars
-        .exit()
+export function clearBarCharts() {
+    barChartSvg.selectAll('.bar')
         .transition()
         .duration(600)
         .attr("width", 0)
+        .remove();
+
+    barChartSvg.selectAll('.tick')
+        .transition()
+        .duration(200)
+        .delay(300)
+        .attr("opacity", 0)
         .remove();
 }
 

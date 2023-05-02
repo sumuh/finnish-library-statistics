@@ -1,4 +1,4 @@
-import { updateBarCharts, updateBarChartsYear } from './bar-charts.js';
+import { updateBarCharts, updateBarChartsYear, clearBarCharts } from './bar-charts.js';
 
 async function getMap() {
     try {
@@ -256,7 +256,7 @@ function clearSelections() {
     mapSvg
       .selectAll(".municipality")
       .classed("highlighted", false);
-    updateBarCharts(currentYear);
+    clearBarCharts();
 }
 
 function removeSelectedMunicipality(event, d) {
