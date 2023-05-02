@@ -102,7 +102,9 @@ export function clearBarCharts() {
         .attr("width", 0)
         .remove();
 
-    barChartSvg.selectAll('.tick')
+    barChartSvg
+        .select('.y.axis')
+        .selectAll('.tick')
         .transition()
         .duration(200)
         .delay(300)
