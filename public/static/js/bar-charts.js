@@ -1,4 +1,4 @@
-import { selectedMunicipalities, colorScale } from './index.js'
+import { selectedMunicipalities, colorScale, getMunicipalityCodeToYearKey, currentYear } from './index.js'
 
 const barChartMargin = { top: 20, right: 20, bottom: 20, left: 20 };
 const barChartWidth = 600 - barChartMargin.left - barChartMargin.right;
@@ -55,6 +55,7 @@ function initBarChartToolTip() {
         .attr("id", "bar-chart-tooltip");
 }
 
+// Redraw entire bar charts when adding or removing selected municipalities
 export function updateBarCharts() {
     barChartSvg.selectAll('.bar').remove();
     barChartSvg.selectAll('.label').remove();
@@ -74,11 +75,11 @@ export function updateBarCharts() {
         .attr('y', function(d) { return barChartYScale(d.name); })
         .attr("width", 0)
         .attr('height', barChartYScale.bandwidth())
-        .style('fill', function(d) { return colorScale(d.value); })
+        .style('fill', function(d) { return colorScale(d.yearData[currentYear]); })
         .on('mouseover', function (d, i) {
               barChartTooltip
                 .html(
-                  '<div>' + i.value + '</div>'
+                  '<div>' + i.yearData[currentYear] + '</div>'
                 )
                 .style('visibility', 'visible');
           })
@@ -91,13 +92,22 @@ export function updateBarCharts() {
               barChartTooltip.html('').style('visibility', 'hidden');
           })
         .transition()
-        .duration(500)
-        .attr('width', function(d) { return barChartXScale(d.value); })
+        .duration(600)
+        .attr('width', function(d) { return barChartXScale(d.yearData[currentYear]); })
 
     bars
         .exit()
         .transition()
-        .duration(500)
+        .duration(600)
         .attr("width", 0)
         .remove();
+}
+
+// Update bar charts when selected municipalities stay the same but year changes
+export function updateBarChartsYear() {
+    barChartSvg.selectAll('.bar')
+        .transition()
+        .duration(400)
+        .style('fill', function(d) { return colorScale(d.yearData[currentYear]); })
+        .attr('width', function(d) { return barChartXScale(d.yearData[currentYear]); });
 }

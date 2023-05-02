@@ -1,4 +1,4 @@
-import { updateBarCharts } from './bar-charts.js';
+import { updateBarCharts, updateBarChartsYear } from './bar-charts.js';
 
 async function getMap() {
     try {
@@ -24,6 +24,8 @@ async function getLibraryStatistics() {
 
 const yearsArr = ["2016", "2017", "2018", "2019", "2020", "2021", "2022"];
 
+export let currentYear = getLatestYearWithData();
+
 const chartWidth = 800;
 const chartHeight = 800;
 
@@ -45,9 +47,9 @@ const projection = createProjection();
 const mapSvg = initMapSvg();
 const mapG = mapSvg.append("g");
 
-d3.select("#header-year-label").html(getLatestYearWithData());
+d3.select("#header-year-label").html(currentYear);
 
-drawPaths(getLatestYearWithData());
+drawPaths(currentYear);
 handleZoom();
 createLegend();
 initEmptySelectionsButton();
@@ -74,7 +76,7 @@ function initMunicipalityCodeToNameMap() {
     return municipalityCodeToNameMap;
 }
 
-function getMunicipalityCodeToYearKey(code, year) {
+export function getMunicipalityCodeToYearKey(code, year) {
     return code + "_" + year;
 }
 
@@ -153,10 +155,13 @@ function initEmptySelectionsButton() {
     })
 }
 
-function drawPaths(year) {
-    console.log("drawpaths " + year)
+function drawPaths() {
     const path = d3.geoPath()
       .projection(projection);
+
+    mapG
+      .selectAll("path")
+      .remove();
 
     mapG
       .selectAll("path")
@@ -168,9 +173,8 @@ function drawPaths(year) {
       .attr("stroke", "black")
       .style("fill", function(d) {
             var municipalityCode = d.properties.code;
-            var mapKey = getMunicipalityCodeToYearKey(municipalityCode, year);
+            var mapKey = getMunicipalityCodeToYearKey(municipalityCode, currentYear);
             var dataValue = municipalityCodeToDataMap.get(mapKey);
-            console.log(dataValue)
             if(dataValue) {
                 return colorScale(dataValue);
             } else {
@@ -193,28 +197,58 @@ function drawPaths(year) {
       })
       .on('click', onMunicipalityClick)
       .text(function(d) { return d.properties.name; });
+
+    highlightSelectedMunicipalities();
+}
+
+function highlightSelectedMunicipalities() {
+    mapG
+      .selectAll("path")
+      .each(function(d) {
+        const municipality = d3.select(this);
+        if(municipalityIsSelected(d.properties.code)) {
+            municipality.classed("highlighted", true);
+        }
+      })
 }
 
 function onMunicipalityClick(event, d) {
     const municipalityCode = d.properties.code;
-    const alreadySelected = selectedMunicipalities.filter(municipality => municipality.code == municipalityCode).length > 0;
-    if(alreadySelected) {
+    if(municipalityIsSelected(municipalityCode)) {
         removeSelectedMunicipality(event, d);
     } else {
         addSelectedMunicipality(event, d);
     }
-    updateBarCharts();
+    updateBarCharts(currentYear);
+}
+
+function municipalityIsSelected(code) {
+    return selectedMunicipalities.filter(municipality => municipality.code == code).length > 0;
 }
 
 function addSelectedMunicipality(event, d) {
+    selectedMunicipalities.push(createSelectedMunicipalityObj(d));
+
+    const clickedPath = d3.select(event.currentTarget);
+    clickedPath.classed('highlighted', true);
+}
+
+function createSelectedMunicipalityObj(d) {
     const municipalityCode = d.properties.code;
     const municipalityName = d.properties.name;
 
     const dataValue = municipalityCodeToDataMap.get(municipalityCode);
-    selectedMunicipalities.push({'code': municipalityCode, 'name': municipalityName, 'value': dataValue});
-
-    const clickedPath = d3.select(event.currentTarget);
-    clickedPath.classed('highlighted', true);
+    const selectedMunicipalityWithData =
+        {
+            'code': municipalityCode, 
+            'name': municipalityName, 
+            'yearData': {}
+        }
+    yearsArr.forEach(function(year) {
+        const mapKey = getMunicipalityCodeToYearKey(municipalityCode, year);
+        selectedMunicipalityWithData.yearData[year] = municipalityCodeToDataMap.get(mapKey);
+    });
+    return selectedMunicipalityWithData;
 }
 
 function clearSelections() {
@@ -222,7 +256,7 @@ function clearSelections() {
     mapSvg
       .selectAll(".municipality")
       .classed("highlighted", false);
-    updateBarCharts();
+    updateBarCharts(currentYear);
 }
 
 function removeSelectedMunicipality(event, d) {
@@ -256,9 +290,10 @@ function initYearSlider() {
 
     slider.on("input", function() {
       let year = this.value;
+      currentYear = year;
       sliderLabel.text(year);
       headerYearLabel.text(year);
-      transitionMap(year);
+      transitionMap();
     });
 }
 
@@ -266,6 +301,7 @@ function getLatestYearWithData() {
     return yearsArr[yearsArr.length - 1];
 }
 
-function transitionMap(year) {
-    drawPaths(year);
+function transitionMap() {
+    drawPaths();
+    updateBarChartsYear();
 }
