@@ -84,7 +84,7 @@ function initMunicipalityCodeToNameMap() {
 function initMunicipalityNameToCodeMap() {
     const municipalityNameToCodeMap = new Map();
     for (let [key, value] of municipalityCodeToNameMap) {
-        municipalityNameToCodeMap.set(value, key);
+        municipalityNameToCodeMap.set(value.toLowerCase(), key);
     }
     return municipalityNameToCodeMap;
 }
@@ -131,7 +131,7 @@ function getLegendText(d) {
     let text = "";
     switch(d) {
         case 4.99:
-            text = "alle 5";
+            text = "< 5";
             break;
         case 9.99:
             text = "5-10";
@@ -146,7 +146,7 @@ function getLegendText(d) {
             text = "20-25";
             break;
         case 1000:
-            text = "yli 25"
+            text = "> 25"
             break;
     }
     return text;
@@ -350,7 +350,7 @@ function initSearchBox() {
     const $searchInput = $("#search-municipality-input");
 
     $seachInputButton.click(function() {
-        let searchedMunicipalityName = $searchInput.val();
+        let searchedMunicipalityName = $searchInput.val().toLowerCase();
         let searchedMunicipalityCode = municipalityNameToCodeMap.get(searchedMunicipalityName);
         if(searchedMunicipalityCode) {
             d3.select("#municipality-" + searchedMunicipalityCode)
