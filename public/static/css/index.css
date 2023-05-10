@@ -39,8 +39,16 @@ svg {
     max-width: 200px !important;
 }
 
-.top-buffer { 
+.margin-top-sm { 
     margin-top:20px !important; 
+}
+
+.margin-bottom-sm { 
+    margin-bottom:20px !important; 
+}
+
+.margin-bottom-xs { 
+    margin-bottom:10px !important; 
 }
 
 .centering-row {

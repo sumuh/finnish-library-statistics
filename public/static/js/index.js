@@ -103,9 +103,16 @@ function initMapSvg() {
 }
 
 function createLegend() {
+    const legendBackground = mapSvg.append("svg")
+        .attr("transform", "translate(10, 10)")
+        .append("rect")
+        .attr("width", 75)
+        .attr("height", 140)
+        .attr("fill", "white");
+
     const legend = mapSvg.append("g")
         .attr("class", "legend")
-        .attr("transform", "translate(20, 50)");
+        .attr("transform", "translate(10, 10)");
 
     legend.selectAll("rect")
         .data([1000, 24.99, 19.99, 14.99, 9.99, 4.99])
