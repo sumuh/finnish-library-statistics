@@ -1,32 +1,29 @@
-<div id="vis-container" class="container" style="margin:15px">
-    <div class="row flex-nowrap">
-        <div class="col-md-auto">
-            <div class="row justify-content-md-center">
-                <div class="col-md-auto">
-                    <h2 id="header-year-label"></h2>
-                </div>
-            </div>
-            <div class="row">
+<div id="vis-container" class="container-fluid">
+    <div class="row">
+        <h2 id="header-year-label" style="text-align:center"></h2>
+    </div>
+    <div class="row gy-3">
+        <div class="col-md-6 col-lg-6">
                 <div id="map-container">
                     <div id="map-and-legend-container"></div>
                 </div>
-            </div>
         </div>
-        <div class="col-md-auto">
+        <div class="col-md-6">
+            <div class="row gy-3">
+                <div id="charts-container"></div>
+            </div>
+            <div class="row centering-row">
+                <button id="clear-selections-button" type="button" class="btn btn-outline-primary btn-sm margin-sm small-button top-buffer">
+                    Clear selections
+                </button>
+            </div>
             <div class="row">
-                <div id="charts-container">
-                </div>
-            </div>
-            <div class="row justify-content-md-center">
-                <button id="clear-selections-button" type="button" class="btn btn-outline-primary btn-sm margin-sm" style="max-width:200px;">Tyhjennä valinnat</button>
-            </div>
-            <form class="range-form">
-                <div class="row">
-                    <label id="year-slider-label" for="year-slider" class="form-label">Vuosi</label>
+                <form class="range-form">
+                    <label id="year-slider-label" for="year-slider" class="form-label">Year</label>
                     <input type="range" min="2016" max="2022" value="2022" class="form-range slider" id="year-slider">
                     <span id="year-slider-current-year-label">ASD</span>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </div>

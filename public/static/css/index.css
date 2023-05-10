@@ -2,15 +2,31 @@ svg {
     overflow: hidden;
 }
 
+#vis-container {
+    padding: 30px;
+}
+
 #map-container {
     border: 1px solid;
     padding: 20px;
+    overflow: hidden;
 }
 
 #charts-container {
     padding: 20px;
-    margin: 20px;
     border: 1px solid lightgreen;
+}
+
+.small-button {
+    max-width: 200px !important;
+}
+
+.top-buffer { 
+    margin-top:20px !important; 
+}
+
+.centering-row {
+    justify-content: center;
 }
 
 .range-form {
