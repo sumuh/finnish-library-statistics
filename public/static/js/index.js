@@ -55,6 +55,10 @@ createLegend();
 initEmptySelectionsButton();
 initYearSlider();
 
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+
 function initmunicipalityCodeToDataMap() {
     const municipalityCodeToDataMap = new Map();
     statsCsv.forEach(function(d) {
