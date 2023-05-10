@@ -3,12 +3,12 @@ svg {
 }
 
 #vis-container {
-    padding: 30px;
+    padding: 7px 20px;
 }
 
 #map-container {
     border: 1px solid;
-    padding: 20px;
+    padding: 15px;
     overflow: hidden;
 }
 
@@ -20,6 +20,11 @@ svg {
 #header-year-label {
     align-self: center;
     text-align: center;
+}
+
+.search-box {
+    background-color: white;
+    max-height: 50px;
 }
 
 .hover-info-ball {

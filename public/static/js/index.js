@@ -37,6 +37,7 @@ const statsCsv = d3.csvParse(libraryStats);
 
 const municipalityCodeToDataMap = initmunicipalityCodeToDataMap();
 const municipalityCodeToNameMap = initMunicipalityCodeToNameMap();
+const municipalityNameToCodeMap = initMunicipalityNameToCodeMap();
 
 export const colorScale = createColorScale();
 
@@ -54,6 +55,7 @@ handleZoom();
 createLegend();
 initEmptySelectionsButton();
 initYearSlider();
+initSearchBox();
 
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()
@@ -77,6 +79,14 @@ function initMunicipalityCodeToNameMap() {
         municipalityCodeToNameMap.set(d.municipality_code, d.municipality_name);
     });
     return municipalityCodeToNameMap;
+}
+
+function initMunicipalityNameToCodeMap() {
+    const municipalityNameToCodeMap = new Map();
+    for (let [key, value] of municipalityCodeToNameMap) {
+        municipalityNameToCodeMap.set(value, key);
+    }
+    return municipalityNameToCodeMap;
 }
 
 export function getMunicipalityCodeToYearKey(code, year) {
@@ -197,6 +207,7 @@ function drawPaths() {
       .enter()
       .append("path")
       .attr("class", "municipality")
+      .attr("id", function(d) { return "municipality-" + d.properties.code })
       .attr("d", path)
       .attr("stroke", "black")
       .style("fill", function(d) {
@@ -332,4 +343,25 @@ function getLatestYearWithData() {
 function transitionMap() {
     drawPaths();
     updateBarChartsYear();
+}
+
+function initSearchBox() {
+    const $seachInputButton = $("#search-municipality-button");
+    const $searchInput = $("#search-municipality-input");
+
+    $seachInputButton.click(function() {
+        let searchedMunicipalityName = $searchInput.val();
+        let searchedMunicipalityCode = municipalityNameToCodeMap.get(searchedMunicipalityName);
+        if(searchedMunicipalityCode) {
+            d3.select("#municipality-" + searchedMunicipalityCode)
+               .dispatch('click');
+        }
+    });
+
+    $searchInput.on("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        $seachInputButton.click();
+      }
+    });
 }
