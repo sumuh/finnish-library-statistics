@@ -7,13 +7,18 @@ svg {
 }
 
 #map-container {
-    border: 1px solid;
+    height: 95%;
+    border: 1px solid #4f4f4f;
     padding: 15px;
     overflow: hidden;
 }
 
+#map-and-legend-container {
+    height: 100%;
+}
+
 #charts-container {
-    border: 1px solid;
+    border: 1px solid #4f4f4f;
     padding: 20px;
 }
 
@@ -22,13 +27,28 @@ svg {
     text-align: center;
 }
 
+.page-footer {
+    background-color: #d0d1e6;
+}
+
 .search-box {
     background-color: white;
     max-height: 50px;
 }
 
+.search-button {
+    background-color: #d0d1e6 !important;
+}
+
+.instruction-text {
+    color: #4f4f4f;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
 .hover-info-ball {
-    font-size: 20px;
+    font-size: 23px;
+    color: #1bb31b;
 }
 
 .tooltip-inner {

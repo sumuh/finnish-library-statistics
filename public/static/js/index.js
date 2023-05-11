@@ -21,13 +21,12 @@ async function getLibraryStatistics() {
 }
 
 // Defining global variables
+let chartWidth = $("#map-and-legend-container").width();
+let chartHeight = null;
 
 const yearsArr = ["2016", "2017", "2018", "2019", "2020", "2021", "2022"];
 
 export let currentYear = getLatestYearWithData();
-
-const chartWidth = 800;
-const chartHeight = 800;
 
 export let selectedMunicipalities = [];
 
@@ -41,21 +40,30 @@ const municipalityNameToCodeMap = initMunicipalityNameToCodeMap();
 
 export const colorScale = createColorScale();
 
+let mapSvg = null;
+let mapG = null;
+let projection = null;
+
 const municipalityNameTooltip = createMunicipalityNameTooltip();
 
-const projection = createProjection();
+$(document).ready(function() {
+    chartHeight = $("#map-and-legend-container").height() - 20;
+    mapSvg = initMapSvg();
+    mapG = mapSvg.append("g");
 
-const mapSvg = initMapSvg();
-const mapG = mapSvg.append("g");
+    d3.select("#header-year-label").html(currentYear);
+    projection = createProjection();
+    drawPaths(currentYear);
+    handleZoom();
+    createLegend();
+    initEmptySelectionsButton();
+    initYearSlider();
+    initSearchBox();
 
-d3.select("#header-year-label").html(currentYear);
-
-drawPaths(currentYear);
-handleZoom();
-createLegend();
-initEmptySelectionsButton();
-initYearSlider();
-initSearchBox();
+    setTimeout(function() {
+        $(".instruction-text").css("opacity", "1");
+    }, 600);
+})
 
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()
@@ -98,6 +106,8 @@ export function getMunicipalityCodeToYearKey(code, year) {
 function initMapSvg() {
     return d3.select("#map-and-legend-container")
       .append("svg")
+      .style("display", "block")
+      .style("margin", "auto")
       .attr("height", chartHeight)
       .attr("width", chartWidth);
 }
