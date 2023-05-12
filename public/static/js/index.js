@@ -366,10 +366,10 @@ function transitionMap() {
 }
 
 function initSearchBox() {
-    const $seachInputButton = $("#search-municipality-button");
+    const $searchInputButton = $("#search-municipality-button");
     const $searchInput = $("#search-municipality-input");
 
-    $seachInputButton.click(function() {
+    $searchInputButton.click(function() {
         let searchedMunicipalityName = $searchInput.val().toLowerCase();
         let searchedMunicipalityCode = municipalityNameToCodeMap.get(searchedMunicipalityName);
         if(searchedMunicipalityCode) {
@@ -381,7 +381,7 @@ function initSearchBox() {
     $searchInput.on("keypress", function(event) {
       if (event.key === "Enter") {
         event.preventDefault();
-        $seachInputButton.click();
+        $searchInputButton.click();
       }
     });
 }

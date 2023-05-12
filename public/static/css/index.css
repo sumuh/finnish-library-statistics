@@ -27,6 +27,10 @@ svg {
     text-align: center;
 }
 
+.municipality-bar:hover {
+    cursor: pointer;
+}
+
 .page-footer {
     background-color: #d0d1e6;
 }

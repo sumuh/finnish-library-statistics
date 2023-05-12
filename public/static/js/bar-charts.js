@@ -70,7 +70,8 @@ export function updateBarCharts() {
     bars
         .enter()
         .append('rect')
-        .attr('class', 'bar')
+        .classed('bar', true)
+        .classed('municipality-bar', true)
         .attr('x', barChartXScale(0) + maxBarLabelWidth + 1)
         .attr('y', function(d) { return barChartYScale(d.name); })
         .attr("width", 0)
@@ -84,13 +85,17 @@ export function updateBarCharts() {
                 .style('visibility', 'visible');
           })
         .on('mousemove', function(event) {
-              barChartTooltip
+            barChartTooltip
                 .style('top', (event.pageY - 15) + 'px')
                 .style('left', (event.pageX + 15) + 'px');
-          })
-          .on('mouseout', function () {
-              barChartTooltip.html('').style('visibility', 'hidden');
-          })
+        })
+        .on('mouseout', function() {
+            barChartTooltip.html('').style('visibility', 'hidden');
+        })
+        .on('click', function(d, i) {
+            d3.select("#municipality-" + i.code)
+               .dispatch('click');
+        })
         .transition()
         .duration(600)
         .attr('width', function(d) { return barChartXScale(d.yearData[currentYear]); })
