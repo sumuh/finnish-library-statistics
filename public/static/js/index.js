@@ -2,7 +2,7 @@ import { updateBarCharts, updateBarChartsYear, clearBarCharts } from './bar-char
 
 async function getMap() {
     try {
-        const response = await axios.get('http://localhost:3000/resources/finland-map-latest.json');
+        const response = await axios.get('resources/finland-map-latest.json');
         return response.data;
     } catch (error) {
         console.error(error);
@@ -11,7 +11,7 @@ async function getMap() {
 
 async function getLibraryStatistics() {
     try {
-        const response = await axios.get('http://localhost:3000/resources/library_stats_all_clean.csv', 
+        const response = await axios.get('resources/library_stats_all_clean.csv', 
             { responseType: 'blob'});
         const csvData = response.data;
         return csvData.text();
