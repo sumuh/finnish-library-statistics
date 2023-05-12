@@ -33,6 +33,7 @@ svg {
 
 .page-footer {
     background-color: #d0d1e6;
+    max-height: 10%;
 }
 
 .search-box {
