@@ -24,12 +24,6 @@ app.get('/', (req, res) => {
     res.render('home', {showTitle: true});
 });
 
-app.get('/api/data', (req, res) => {
-    fetch('http://localhost:3000/resources/finland_map.json')
-        .then(jsonData => res.json(jsonData))
-        .catch(err => {
-            console.error(err);
-        });
-});
+const PORT = process.env.PORT || 3000;
 
-app.listen(3000);
+app.listen(PORT);
