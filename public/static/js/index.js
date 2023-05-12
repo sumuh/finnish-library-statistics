@@ -182,7 +182,9 @@ function handleZoom() {
         .on("zoom", zoomed);
 
     function zoomed(event) {
-        mapG.attr("transform", event.transform);
+        mapG.attr("transform", event.transform)
+            .selectAll("path")
+            .attr("stroke-width", "1px");
     }
     mapSvg.call(zoom);
     mapSvg.on("dblclick.zoom", null); // Disable zooming on double click
@@ -227,6 +229,7 @@ function drawPaths() {
       .attr("id", function(d) { return "municipality-" + d.properties.code })
       .attr("d", path)
       .attr("stroke", "black")
+      .attr("stroke-width", "1px")
       .style("fill", function(d) {
             var municipalityCode = d.properties.code;
             var mapKey = getMunicipalityCodeToYearKey(municipalityCode, currentYear);

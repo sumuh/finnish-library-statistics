@@ -1,7 +1,7 @@
 import { selectedMunicipalities, colorScale, getMunicipalityCodeToYearKey, currentYear } from './index.js'
 
 const barChartMargin = { top: 20, right: 20, bottom: 20, left: 20 };
-const barChartWidth = 600 - barChartMargin.left - barChartMargin.right;
+const barChartWidth = 700 - barChartMargin.left - barChartMargin.right;
 const barChartHeight = 500 - barChartMargin.top - barChartMargin.bottom;
 
 const maxBarLabelWidth = 95;
@@ -36,7 +36,8 @@ function initBarChartXAxis() {
       .attr("transform", "translate(" + maxBarLabelWidth + "," + barChartHeight + ")")
       .call(d3.axisBottom(barChartXScale))
       .selectAll("text")
-          .attr("transform", "translate(-10,0)rotate(-45)")
+          .attr("transform", "translate(4,0)")
+          .style("font-size", "13px")
           .style("text-anchor", "end");
 }
 
