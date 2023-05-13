@@ -71,7 +71,6 @@ $(function () {
 
 function initmunicipalityCodeToDataMap() {
     const municipalityCodeToDataMap = new Map();
-    console.log(statsCsv)
     statsCsv.forEach(function(d) {
         for(let year of yearsArr) {
             let yearColumnKey = "loans_per_population_" + year;
@@ -214,7 +213,6 @@ function initEmptySelectionsButton() {
 }
 
 function drawPaths() {
-    console.log(mapObj.features)
     const path = d3.geoPath()
       .projection(projection);
 
