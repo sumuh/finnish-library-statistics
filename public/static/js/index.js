@@ -11,7 +11,7 @@ async function getMap() {
 
 async function getLibraryStatistics() {
     try {
-        const response = await axios.get('resources/library_stats_all_clean.csv', 
+        const response = await axios.get('resources/all_stats_clean.csv', 
             { responseType: 'blob'});
         const csvData = response.data;
         return csvData.text();
@@ -24,7 +24,7 @@ async function getLibraryStatistics() {
 let chartWidth = $("#map-and-legend-container").width();
 let chartHeight = null;
 
-const yearsArr = ["2016", "2017", "2018", "2019", "2020", "2021", "2022"];
+const yearsArr = ["2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"];
 
 export let currentYear = getLatestYearWithData();
 
@@ -71,6 +71,7 @@ $(function () {
 
 function initmunicipalityCodeToDataMap() {
     const municipalityCodeToDataMap = new Map();
+    console.log(statsCsv)
     statsCsv.forEach(function(d) {
         for(let year of yearsArr) {
             let yearColumnKey = "loans_per_population_" + year;
@@ -213,6 +214,7 @@ function initEmptySelectionsButton() {
 }
 
 function drawPaths() {
+    console.log(mapObj.features)
     const path = d3.geoPath()
       .projection(projection);
 
